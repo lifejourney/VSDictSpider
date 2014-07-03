@@ -12,6 +12,9 @@
 
 @interface VSMainViewController () <NSURLConnectionDelegate, NSURLConnectionDataDelegate>
 
+@property (nonatomic, strong) IBOutlet NSTextField *siteTextField;
+@property (nonatomic, strong) IBOutlet NSTextField *wordTextField;
+
 - (IBAction) forIciba: (id)sender;
 
 @property (nonatomic, strong) NSURLConnection *httpConnection;
@@ -46,7 +49,7 @@
                                                          error: &error];
     if (bodyData)
     {
-        NSString *urlString = @"http://www.iciba.com/incoming";
+        NSString *urlString = [NSString stringWithFormat: @"http://%@/%@", self.siteTextField.stringValue, self.wordTextField.stringValue];
         NSString *httpMethod = @"GET";
         NSDictionary *headers = @{};
         
@@ -66,6 +69,12 @@
     }
 }
 
+- (NSString*) parser: (TFHpple*)htmlParser textOfFirstElementWithPath: (NSString*)xPathOrCSS
+{
+    TFHppleElement *element = [htmlParser peekAtSearchWithXPathQuery: xPathOrCSS];
+    
+    return [element text];
+}
 
 - (NSURLRequest*) connection: (NSURLConnection *)connection
              willSendRequest: (NSURLRequest *)request
@@ -84,10 +93,28 @@
     [self.receivedData appendData: data];
 }
 
+#define kVSDictKey_wordName @"wordName"
+#define kVSDictKey_ttsFile @"ttsFile"
+#define kVSDictKey_siteURL @"siteURL"
+#define kVSDictKey_category @"category"
+#define kVSDictKey_frequency @"frequency"
+#define kVSDictKey_phonetics @"phonetics"
+#define kVSDictKey_synonyms @"synonyms"
+#define kVSDictKey_antonyms @"antonyms"
+#define kVSDictKey_idiomAndPhrases @"phrases"
+#define kVSDictKey_wordRoots @"wordRoots"
+#define kVSDictKey_wordRoot @"wordRoot"
+#define kVSDictKey_explain @"explain"
+#define kVSDictKey_relatedWords @"relatedWords"
+#define kVSDictKey_Collins @"Collins"
+#define kVSDictKey_explain_CN @"CN"
+#define kVSDictKey_explain_EN @"EN"
+#define kVSDictKey_samples @"samples"
+#define kVSDictKey_sentence @"sentence"
+
+
 - (void) connectionDidFinishLoading: (NSURLConnection *)connection
 {
-    NSError *error;
-    
     if (self.httpResponse)
     {
         NSString *respString = [[NSString alloc] initWithData: self.receivedData encoding: NSUTF8StringEncoding];
@@ -96,18 +123,29 @@
         
         
         TFHpple *htmlParser = [[TFHpple alloc] initWithHTMLData: self.receivedData];
-        NSArray *elements = [htmlParser searchWithXPathQuery: @"//div[@id='frequence_ec_word']/div[@class='tips_content']"];
-        for (TFHppleElement *ele in elements)
+        TFHppleElement *element;
+        
+        NSString *desktopPath = [NSSearchPathForDirectoriesInDomains(NSDesktopDirectory, NSUserDomainMask, YES) lastObject];
+        NSString *siteName = self.siteTextField.stringValue;
+        NSString *wordName = self.wordTextField.stringValue;
+        NSString *fileName = [NSString stringWithFormat: @"%@/%@/%@", desktopPath, siteName, wordName];
+        NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+        
+        NSString *frequency = [self parser: htmlParser textOfFirstElementWithPath: @"//div[@id='frequence_ec_word']/div[@class='tips_content']"];
+        
+        [dict setValue: wordName forKey: kVSDictKey_wordName];
+        [dict setValue: frequency forKey: kVSDictKey_frequency];
+        
+        if (![dict writeToFile: fileName atomically: YES])
         {
-            NSString *content = [ele raw];
-            NSLog(@"%@", content);
+            NSLog(@"Failed to writeToFile: %@", fileName);
         }
     }
 }
 
 - (void) connection: (NSURLConnection *)connection didFailWithError: (NSError *)error
 {
-    NSLog(@"Connection error[%d] reason: %@. \n response: %@", [error code], [error localizedFailureReason], self.httpResponse);
+    NSLog(@"Connection error[%ld] reason: %@. \n response: %@", (long)[error code], [error localizedFailureReason], self.httpResponse);
     self.connectionError = error;
     
     self.httpConnection = nil;
