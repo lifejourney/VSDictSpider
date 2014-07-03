@@ -7,12 +7,21 @@
 //
 
 #import "VSAppDelegate.h"
+#import "VSMainViewController.h"
+
+
+@interface VSAppDelegate()
+
+@property (nonatomic, strong) VSMainViewController *mainVC;
+
+@end
 
 @implementation VSAppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-    // Insert code here to initialize your application
+    self.mainVC = [[VSMainViewController alloc] initWithNibName: NSStringFromClass([VSMainViewController class]) bundle: nil];
+    [self.window.contentView addSubview: self.mainVC.view];
 }
 
 @end
