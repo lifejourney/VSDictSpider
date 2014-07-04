@@ -98,6 +98,7 @@
 
 // Returns elements searched with xpath
 - (NSArray *) searchWithXPathQuery:(NSString *)xPathOrCSS;
+- (TFHppleElement *) peekAtSearchWithXPathQuery:(NSString *)xPathOrCSS;
 
 // Custom keyed subscripting
 - (id)objectForKeyedSubscript:(id)key;
