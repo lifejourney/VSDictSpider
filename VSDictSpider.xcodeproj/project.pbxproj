@@ -25,6 +25,8 @@
 		434D4B9419655EAF005EC6E1 /* libxml2.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 434D4B9319655EAF005EC6E1 /* libxml2.2.dylib */; };
 		434D4BA619656537005EC6E1 /* VSMainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 434D4BA419656537005EC6E1 /* VSMainViewController.m */; };
 		434D4BA719656537005EC6E1 /* VSMainViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 434D4BA519656537005EC6E1 /* VSMainViewController.xib */; };
+		435B222719668E0C0026EF85 /* NSString+SubString.m in Sources */ = {isa = PBXBuildFile; fileRef = 435B222619668E0C0026EF85 /* NSString+SubString.m */; };
+		435B222A196698660026EF85 /* NSString+Trim.m in Sources */ = {isa = PBXBuildFile; fileRef = 435B2229196698660026EF85 /* NSString+Trim.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -68,6 +70,10 @@
 		434D4BA319656537005EC6E1 /* VSMainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VSMainViewController.h; sourceTree = "<group>"; };
 		434D4BA419656537005EC6E1 /* VSMainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VSMainViewController.m; sourceTree = "<group>"; };
 		434D4BA519656537005EC6E1 /* VSMainViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = VSMainViewController.xib; sourceTree = "<group>"; };
+		435B222519668E0C0026EF85 /* NSString+SubString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+SubString.h"; sourceTree = "<group>"; };
+		435B222619668E0C0026EF85 /* NSString+SubString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+SubString.m"; sourceTree = "<group>"; };
+		435B2228196698660026EF85 /* NSString+Trim.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Trim.h"; sourceTree = "<group>"; };
+		435B2229196698660026EF85 /* NSString+Trim.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+Trim.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -150,6 +156,10 @@
 				434D4BA319656537005EC6E1 /* VSMainViewController.h */,
 				434D4BA419656537005EC6E1 /* VSMainViewController.m */,
 				434D4BA519656537005EC6E1 /* VSMainViewController.xib */,
+				435B222519668E0C0026EF85 /* NSString+SubString.h */,
+				435B222619668E0C0026EF85 /* NSString+SubString.m */,
+				435B2228196698660026EF85 /* NSString+Trim.h */,
+				435B2229196698660026EF85 /* NSString+Trim.m */,
 			);
 			path = VSDictSpider;
 			sourceTree = "<group>";
@@ -286,7 +296,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				434D4B9119655E72005EC6E1 /* TFHppleElement.m in Sources */,
+				435B222A196698660026EF85 /* NSString+Trim.m in Sources */,
 				434D4B6119655D4A005EC6E1 /* main.m in Sources */,
+				435B222719668E0C0026EF85 /* NSString+SubString.m in Sources */,
 				434D4BA619656537005EC6E1 /* VSMainViewController.m in Sources */,
 				434D4B9219655E72005EC6E1 /* XPathQuery.m in Sources */,
 				434D4B9019655E72005EC6E1 /* TFHpple.m in Sources */,
@@ -513,6 +525,7 @@
 				434D4B8419655D4A005EC6E1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		434D4B8519655D4A005EC6E1 /* Build configuration list for PBXNativeTarget "VSDictSpiderTests" */ = {
 			isa = XCConfigurationList;
@@ -521,6 +534,7 @@
 				434D4B8719655D4A005EC6E1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

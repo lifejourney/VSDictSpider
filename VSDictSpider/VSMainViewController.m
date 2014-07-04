@@ -7,6 +7,8 @@
 //
 
 #import "VSMainViewController.h"
+#import "NSString+Trim.h"
+#import "NSString+SubString.h"
 #import "TFHpple.h"
 
 
@@ -17,10 +19,14 @@
 
 - (IBAction) forIciba: (id)sender;
 
+@property (nonatomic, strong) NSString *currentSite;
+@property (nonatomic, strong) NSString *currentWord;
 @property (nonatomic, strong) NSURLConnection *httpConnection;
 @property (nonatomic, strong) NSHTTPURLResponse *httpResponse;
 @property (nonatomic, strong) NSMutableData *receivedData;
 @property (nonatomic, strong) NSError *connectionError;
+
+- (void) checkAndCreateCurrentDictFolder;
 
 @end
 
@@ -49,9 +55,14 @@
                                                          error: &error];
     if (bodyData)
     {
-        NSString *urlString = [NSString stringWithFormat: @"http://%@/%@", self.siteTextField.stringValue, self.wordTextField.stringValue];
+        self.currentSite = self.siteTextField.stringValue;
+        self.currentWord = self.wordTextField.stringValue;
+        
+        [self checkAndCreateCurrentDictFolder];
+        
+        NSString *urlString = [NSString stringWithFormat: @"http://%@/%@", _currentSite, _currentWord];
         NSString *httpMethod = @"GET";
-        NSDictionary *headers = @{};
+        NSDictionary *headers = @{@"User-Agent": @"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.76.4 (KHTML, like Gecko) Version/7.0.4 Safari/537.76.4"};
         
         
         
@@ -67,13 +78,6 @@
                                                               delegate: self
                                                       startImmediately: YES];
     }
-}
-
-- (NSString*) parser: (TFHpple*)htmlParser textOfFirstElementWithPath: (NSString*)xPathOrCSS
-{
-    TFHppleElement *element = [htmlParser peekAtSearchWithXPathQuery: xPathOrCSS];
-    
-    return [element text];
 }
 
 - (NSURLRequest*) connection: (NSURLConnection *)connection
@@ -93,10 +97,11 @@
     [self.receivedData appendData: data];
 }
 
-#define kVSDictKey_wordName @"wordName"
+#define kVSDictKey_wordName @"00 wordName"
 #define kVSDictKey_ttsFile @"ttsFile"
 #define kVSDictKey_siteURL @"siteURL"
-#define kVSDictKey_category @"category"
+#define kVSDictKey_exam @"exam" //CET4, 6
+#define kVSDictKey_category @"category" //N, V, ADJ
 #define kVSDictKey_frequency @"frequency"
 #define kVSDictKey_phonetics @"phonetics"
 #define kVSDictKey_synonyms @"synonyms"
@@ -105,6 +110,7 @@
 #define kVSDictKey_wordRoots @"wordRoots"
 #define kVSDictKey_wordRoot @"wordRoot"
 #define kVSDictKey_explain @"explain"
+#define kVSDictKey_text @"text"
 #define kVSDictKey_relatedWords @"relatedWords"
 #define kVSDictKey_Collins @"Collins"
 #define kVSDictKey_explain_CN @"CN"
@@ -112,43 +118,178 @@
 #define kVSDictKey_samples @"samples"
 #define kVSDictKey_sentence @"sentence"
 
+- (NSString*)dictFolder: (NSString*)site
+{
+    NSString *desktopPath = [NSSearchPathForDirectoriesInDomains(NSDesktopDirectory, NSUserDomainMask, YES) lastObject];
+    
+    return [NSString stringWithFormat: @"%@/%@", desktopPath, site];
+}
+
+- (NSString*)dictFile: (NSString*)site word: (NSString*)word
+{
+    return [NSString stringWithFormat: @"%@/%@", [self dictFolder: site], word];
+}
+
+- (NSString*)failListFile: (NSString*)site
+{
+    return [NSString stringWithFormat: @"%@/%@", [self dictFolder: site], @"__failList"];
+}
+
+- (void) saveToFailList: (NSString*)site word: (NSString*)word  errorDescripton: (NSString*)errorDescripton
+{
+    NSString *fileName = [self failListFile: site];
+    NSMutableDictionary *failList = [[NSMutableDictionary alloc] initWithContentsOfFile: fileName];
+    
+    [failList setValue: errorDescripton forKeyPath: word];
+    
+    [failList writeToFile: fileName atomically: YES];
+}
+
+- (void) saveToFailList: (NSString*)errorDescripton
+{
+    [self saveToFailList: _currentSite word: _currentWord errorDescripton: errorDescripton];
+}
+
+- (NSString*) parser: (TFHpple*)htmlParser textOfFirstElementWithPath: (NSString*)xPathOrCSS
+{
+    TFHppleElement *element = [htmlParser peekAtSearchWithXPathQuery: xPathOrCSS];
+    
+    return [element text];
+}
+
+- (NSString*) parentElement: (TFHppleElement*)parentElement textOfFirstElementWithPath: (NSString*)xPathOrCSS
+{
+    TFHppleElement *element = [parentElement peekAtSearchWithXPathQuery: xPathOrCSS];
+    
+    return [element text];
+}
+
+- (void) checkAndCreateCurrentDictFolder
+{
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    
+    NSString *dictFolder = [self dictFolder: _currentSite];
+    
+    if (![fileManager fileExistsAtPath: dictFolder])
+    {
+        NSError *error;
+        
+        if (![fileManager createDirectoryAtPath: dictFolder withIntermediateDirectories: YES attributes: nil error: &error])
+        {
+            NSLog(@"Create Directory [%@] fail [%ld]: %@", dictFolder, [error code], [error description]);
+        }
+    }
+}
+
+- (void) parseHTML: (TFHpple*)htmlParser toDict: (NSMutableDictionary*)dict
+{
+    NSArray *eleArray;
+    TFHppleElement *element;
+    TFHppleElement *node;
+    NSString *text;
+    
+    //NSString *frequency = [self parser: htmlParser textOfFirstElementWithPath: @"//div[@id='frequence_ec_word']/div[@class='tips_content']"];
+    
+    //////////////////////////////
+    element = [htmlParser peekAtSearchWithXPathQuery: @"//ul[@class='star']/li[@class='star_current']/@style"];
+    text = [element text];
+    NSInteger width = [text subStringAfter: @"width:" before: @"px"].integerValue;
+    NSNumber *frequency = [NSNumber numberWithInteger: width / 14];
+    [dict setValue: frequency forKey: kVSDictKey_frequency];
+    
+    //////////////////////////////
+    NSMutableArray *examArray = [[NSMutableArray alloc] init];
+    eleArray = [htmlParser searchWithXPathQuery: @"//div[@class='wd_genre']/a"];
+    for (element in eleArray)
+    {
+        text = [element text];
+        [examArray addObject: [text trimAllSpace]];
+    }
+    [dict setValue: examArray forKeyPath: kVSDictKey_exam];
+    
+    //////////////////////////////
+    NSMutableArray *phoneticArray = [[NSMutableArray alloc] init];
+    eleArray = [htmlParser searchWithXPathQuery: @"//div[@class='prons']/span[@class='eg']"];
+    for (element in eleArray)
+    {
+        NSString *category = [self parentElement: element textOfFirstElementWithPath: @"//span[@class='fl']"];
+        NSString *phonetic = [self parentElement: element textOfFirstElementWithPath: @"//span[@class='fl']/strong[2]"];
+        NSString *siteURL = [self parentElement: element textOfFirstElementWithPath: @"//div[@class='vCri']/a/@onclick"];
+        siteURL = [siteURL subStringAfter: @"('" before: @"')"];
+        
+        NSDictionary *phoneticDict = @{kVSDictKey_category: [category trimAllControl],
+                                       kVSDictKey_text: phonetic,
+                                       kVSDictKey_siteURL: siteURL,
+                                       kVSDictKey_ttsFile: @""};
+        
+        [phoneticArray addObject: phoneticDict];
+    }
+    
+    [dict setValue: phoneticArray forKeyPath: kVSDictKey_phonetics];
+    //////////////////////////////
+    
+    //////////////////////////////
+    
+    //////////////////////////////
+}
 
 - (void) connectionDidFinishLoading: (NSURLConnection *)connection
 {
     if (self.httpResponse)
     {
-        NSString *respString = [[NSString alloc] initWithData: self.receivedData encoding: NSUTF8StringEncoding];
+        NSInteger httpStatus = self.httpResponse.statusCode;
+        BOOL isSuccess = (httpStatus >= 200 && httpStatus <= 299);
         
-        NSLog(@"Received response\n\n\n\n\n%@", respString);
-        
-        
-        TFHpple *htmlParser = [[TFHpple alloc] initWithHTMLData: self.receivedData];
-        TFHppleElement *element;
-        
-        NSString *desktopPath = [NSSearchPathForDirectoriesInDomains(NSDesktopDirectory, NSUserDomainMask, YES) lastObject];
-        NSString *siteName = self.siteTextField.stringValue;
-        NSString *wordName = self.wordTextField.stringValue;
-        NSString *fileName = [NSString stringWithFormat: @"%@/%@/%@", desktopPath, siteName, wordName];
-        NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
-        
-        NSString *frequency = [self parser: htmlParser textOfFirstElementWithPath: @"//div[@id='frequence_ec_word']/div[@class='tips_content']"];
-        
-        [dict setValue: wordName forKey: kVSDictKey_wordName];
-        [dict setValue: frequency forKey: kVSDictKey_frequency];
-        
-        if (![dict writeToFile: fileName atomically: YES])
+        if (isSuccess)
         {
-            NSLog(@"Failed to writeToFile: %@", fileName);
+            NSString *respString = [[NSString alloc] initWithData: self.receivedData encoding: NSUTF8StringEncoding];
+            
+            NSLog(@"Received response\n\n\n\n\n%@", respString);
+            
+            TFHpple *htmlParser = [[TFHpple alloc] initWithHTMLData: self.receivedData];
+            
+            NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+            [dict setValue: _currentWord forKey: kVSDictKey_wordName];
+            
+            [self parseHTML: htmlParser toDict: dict];
+            
+            NSError *error;
+            NSString *fileName = [self dictFile: _currentSite word: _currentWord];
+            NSData *data = [NSJSONSerialization dataWithJSONObject: dict options: 0 error: &error];
+            if (data)
+            {
+                if (![data writeToFile: fileName options: NSDataWritingAtomic error: &error])
+                {
+                    NSLog(@"Failed to writeToFile: %@", fileName);
+                    
+                    [self saveToFailList: [NSString stringWithFormat: @"Save to file fail [%ld]: %@", error.code, error.description]];
+                }
+            }
+            else
+            {
+                [self saveToFailList: [NSString stringWithFormat: @"Convert to JSON fail [%ld]: %@", error.code, error.description]];
+            }
         }
+        else
+        {
+            [self saveToFailList: [NSString stringWithFormat: @"HTTP Status: %ld", httpStatus]];
+        }
+    }
+    else
+    {
+        [self saveToFailList: @"Invalid response."];
     }
 }
 
 - (void) connection: (NSURLConnection *)connection didFailWithError: (NSError *)error
 {
-    NSLog(@"Connection error[%ld] reason: %@. \n response: %@", (long)[error code], [error localizedFailureReason], self.httpResponse);
+    NSString *errorDescription = [NSString stringWithFormat: @"Connection error[%ld] reason: %@.", [error code], [error localizedFailureReason]];
+    NSLog(@"%@ \n response: %@", errorDescription, self.httpResponse);
     self.connectionError = error;
     
     self.httpConnection = nil;
+    
+    [self saveToFailList: errorDescription];
 }
 
 @end
