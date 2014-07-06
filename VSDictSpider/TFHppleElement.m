@@ -211,7 +211,12 @@ static NSString * const TFHppleTextNodeName            = @"text";
 
 - (NSString *) text
 {
-    return self.firstTextChild.content;
+    //return self.firstTextChild.content;
+    NSString *textContent = self.firstTextChild.content;
+    if (!textContent)
+        textContent = self.content;
+    
+    return textContent;
 }
 
 // Returns all elements at xPath.

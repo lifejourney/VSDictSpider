@@ -10,6 +10,12 @@
 
 @interface NSString (SubString)
 
+- (NSString*) removeAllSpace;
+- (NSString*) removeReturn;
+- (NSString*) removeTab;
+- (NSString*) removeAllControl;
+
 - (NSString*) subStringAfter: (NSString*)prefix before: (NSString*)subfix;
+- (NSString*) substringByRemovePrefix: (NSString*)prefix;
 
 @end

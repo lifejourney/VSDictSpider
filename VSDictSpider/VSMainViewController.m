@@ -12,6 +12,8 @@
 #import "TFHpple.h"
 
 
+#define kGoogleOnlineTTS_URL @"http://translate.google.cn/translate_tts?tl=en&q="
+
 @interface VSMainViewController () <NSURLConnectionDelegate, NSURLConnectionDataDelegate>
 
 @property (nonatomic, strong) IBOutlet NSTextField *siteTextField;
@@ -21,6 +23,8 @@
 
 @property (nonatomic, strong) NSString *currentSite;
 @property (nonatomic, strong) NSString *currentWord;
+@property (nonatomic, strong) NSMutableDictionary *collinsCategoryDict;
+
 @property (nonatomic, strong) NSURLConnection *httpConnection;
 @property (nonatomic, strong) NSHTTPURLResponse *httpResponse;
 @property (nonatomic, strong) NSMutableData *receivedData;
@@ -60,7 +64,8 @@
         
         [self checkAndCreateCurrentDictFolder];
         
-        NSString *urlString = [NSString stringWithFormat: @"http://%@/%@", _currentSite, _currentWord];
+        NSString *replacedWord = [_currentWord stringByReplacingOccurrencesOfString: @" " withString: @"_"];
+        NSString *urlString = [NSString stringWithFormat: @"http://%@/%@", _currentSite, replacedWord];
         NSString *httpMethod = @"GET";
         NSDictionary *headers = @{@"User-Agent": @"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.76.4 (KHTML, like Gecko) Version/7.0.4 Safari/537.76.4"};
         
@@ -78,6 +83,10 @@
                                                               delegate: self
                                                       startImmediately: YES];
     }
+    
+    _collinsCategoryDict = [[NSMutableDictionary alloc] initWithContentsOfFile: [self collinsCategoryFile: _currentSite]];
+    if (!_collinsCategoryDict)
+        _collinsCategoryDict = [[NSMutableDictionary alloc] init];
 }
 
 - (NSURLRequest*) connection: (NSURLConnection *)connection
@@ -127,18 +136,26 @@
 
 - (NSString*)dictFile: (NSString*)site word: (NSString*)word
 {
-    return [NSString stringWithFormat: @"%@/%@", [self dictFolder: site], word];
+    //TO-DO, json not plist
+    return [NSString stringWithFormat: @"%@/%@.plist", [self dictFolder: site], word];
 }
 
 - (NSString*)failListFile: (NSString*)site
 {
-    return [NSString stringWithFormat: @"%@/%@", [self dictFolder: site], @"__failList"];
+    return [NSString stringWithFormat: @"%@/%@", [self dictFolder: site], @"__failList.plist"];
+}
+
+- (NSString*)collinsCategoryFile: (NSString*)site
+{
+    return [NSString stringWithFormat: @"%@/%@", [self dictFolder: site], @"__collinsCategory.plist"];
 }
 
 - (void) saveToFailList: (NSString*)site word: (NSString*)word  errorDescripton: (NSString*)errorDescripton
 {
     NSString *fileName = [self failListFile: site];
     NSMutableDictionary *failList = [[NSMutableDictionary alloc] initWithContentsOfFile: fileName];
+    if (!failList)
+        failList = [[NSMutableDictionary alloc] init];
     
     [failList setValue: errorDescripton forKeyPath: word];
     
@@ -148,6 +165,11 @@
 - (void) saveToFailList: (NSString*)errorDescripton
 {
     [self saveToFailList: _currentSite word: _currentWord errorDescripton: errorDescripton];
+}
+
+- (void) deleteErrorDescription
+{
+    [self saveToFailList: _currentSite word: _currentWord errorDescripton: nil];
 }
 
 - (NSString*) parser: (TFHpple*)htmlParser textOfFirstElementWithPath: (NSString*)xPathOrCSS
@@ -187,6 +209,7 @@
     TFHppleElement *element;
     TFHppleElement *node;
     NSString *text;
+    BOOL categoryUpdated = NO;
     
     //NSString *frequency = [self parser: htmlParser textOfFirstElementWithPath: @"//div[@id='frequence_ec_word']/div[@class='tips_content']"];
     
@@ -203,7 +226,7 @@
     for (element in eleArray)
     {
         text = [element text];
-        [examArray addObject: [text trimAllSpace]];
+        [examArray addObject: [text removeAllSpace]];
     }
     [dict setValue: examArray forKeyPath: kVSDictKey_exam];
     
@@ -217,20 +240,164 @@
         NSString *siteURL = [self parentElement: element textOfFirstElementWithPath: @"//div[@class='vCri']/a/@onclick"];
         siteURL = [siteURL subStringAfter: @"('" before: @"')"];
         
-        NSDictionary *phoneticDict = @{kVSDictKey_category: [category trimAllControl],
-                                       kVSDictKey_text: phonetic,
-                                       kVSDictKey_siteURL: siteURL,
-                                       kVSDictKey_ttsFile: @""};
+        if (!category)
+            category = @"";
         
-        [phoneticArray addObject: phoneticDict];
+        if (phonetic)
+        {
+            NSDictionary *phoneticDict = @{kVSDictKey_category: [category removeAllControl],
+                                           kVSDictKey_text: phonetic,
+                                           //kVSDictKey_siteURL: siteURL,
+                                           //kVSDictKey_ttsFile: @""
+                                           };
+            
+            [phoneticArray addObject: phoneticDict];
+        }
     }
     
     [dict setValue: phoneticArray forKeyPath: kVSDictKey_phonetics];
     //////////////////////////////
+    NSMutableArray *phraseArray = [[NSMutableArray alloc] init];
+    NSString *ddTemplate = @"//div[@class='dict_content word_group']/dl[@class='def_list']/dd[@class='%@']";
+    NSString *ddTemplates = [NSString stringWithFormat: @"%@ | %@", ddTemplate, ddTemplate];
+    NSString *ddXPath = [NSString stringWithFormat: ddTemplates, @"dd_show", @"dd_hide"];
+    eleArray = [htmlParser searchWithXPathQuery: ddXPath];
+    for (element in eleArray)
+    {
+        NSString *phraseText = [self parentElement: element textOfFirstElementWithPath: @"//h4[@class='cx_mean_switch']"];
+        
+        if (phraseText)
+        {
+            NSMutableArray *meanArray = [[NSMutableArray alloc] init];
+            TFHppleElement *divElement = [element peekAtSearchWithXPathQuery: @"//div[@class='ct_example']"];
+            NSArray *textElementArray = [divElement searchWithXPathQuery: @"//h5"];
+            
+            NSInteger currentIndex = 1;
+            for (TFHppleElement *textElement in textElementArray)
+            {
+                NSString *indexPrefix = [NSString stringWithFormat: @"%ld. ", currentIndex];
+                NSString *enXPath = [NSString stringWithFormat: @"//ul[%ld]/li[1]", currentIndex];
+                NSString *cnXPath = [NSString stringWithFormat: @"//ul[%ld]/li[2]", currentIndex];
+                
+                NSString *explainText = [textElement text];
+                NSString *explainEN = [self parentElement: divElement textOfFirstElementWithPath: enXPath];
+                NSString *explainCN = [self parentElement: divElement textOfFirstElementWithPath: cnXPath];
+                
+                if (explainText)
+                {
+                    NSMutableDictionary *meanDict = [[NSMutableDictionary alloc] initWithCapacity: 3];
+                    [meanDict setValue: [explainText substringByRemovePrefix: indexPrefix] forKey: kVSDictKey_explain];
+                    [meanDict setValue: [explainEN substringByRemovePrefix: indexPrefix] forKey: kVSDictKey_explain_EN];
+                    [meanDict setValue: [explainCN substringByRemovePrefix: indexPrefix] forKey: kVSDictKey_explain_CN];
+                    
+                    [meanArray addObject:meanDict];
+                }
+                
+                currentIndex++;
+            }
+            
+            NSDictionary *phraseDict = @{kVSDictKey_text: phraseText,
+                                         kVSDictKey_explain: meanArray};
+            
+            [phraseArray addObject: phraseDict];
+        }
+    }
     
+    [dict setValue: phraseArray forKeyPath: kVSDictKey_idiomAndPhrases];
     //////////////////////////////
+    NSMutableArray *synonymsArray = [[NSMutableArray alloc] init];
     
+    [dict setValue: synonymsArray forKey: kVSDictKey_synonyms];
     //////////////////////////////
+    NSMutableArray *collinsArray = [[NSMutableArray alloc] init];
+    
+    eleArray = [htmlParser searchWithXPathQuery: @"//div[@class='collins']//div[@class='collins_content']/div[@class='collins_en_cn']"];
+    for (element in eleArray)
+    {
+        NSString *category = [[element peekAtSearchWithXPathQuery: @"//div[@class='caption']/span[@class='st']"].text trimSpaceAndReturn];
+        NSString *explainCN = [[element peekAtSearchWithXPathQuery: @"//div[@class='caption']/span[@class='text_blue']"].text trimSpaceAndReturn];
+        NSArray *enArray = [element searchWithXPathQuery: @"//div[@class='caption']/node()[position() > 6]"];
+        
+        if (category && explainCN)
+        {
+            if (![_collinsCategoryDict valueForKey: category])
+            {
+                NSString *categoryTip = [element peekAtSearchWithXPathQuery: @"//div[@class='caption']/span[@class='st']//div[@class='tips_content']"].text;
+                
+                if (categoryTip)
+                {
+                    [_collinsCategoryDict setValue: categoryTip forKey: category];
+                    
+                    categoryUpdated = YES;
+                }
+            }
+            
+            NSMutableString *explainEN = [[NSMutableString alloc] init];
+            for (NSUInteger index = 0; index < [enArray count]; index++)
+            {
+                TFHppleElement *enEle = [enArray objectAtIndex: index];
+                NSString *enText = enEle.text;
+                NSString *tagName = enEle.tagName;
+                
+                if (enText)
+                {
+                    if (tagName && ![tagName isEqualToString: @"text"])
+                        enText = [NSString stringWithFormat: @"<%@>%@</%@>", tagName, enText, tagName];
+                    
+                    [explainEN appendString: enText];
+                }
+            }
+            
+            NSMutableArray *samplesArray = [[NSMutableArray alloc] init];
+            NSArray *sampleEleArray = [element searchWithXPathQuery: @"//ul/li"];
+            for (TFHppleElement *sampleElement in sampleEleArray)
+            {
+                NSArray *enArray = [sampleElement searchWithXPathQuery: @"//p[1]/node()"];
+                NSString *ttsURL = @"";
+                NSMutableString *sampleEN = [[NSMutableString alloc] init];
+                for (NSUInteger index = 0; index < [enArray count]; index++)
+                {
+                    TFHppleElement *enEle = [enArray objectAtIndex: index];
+                    
+                    NSString *tagClassName = [[enEle attributes] valueForKey: @"class"];
+                    if (tagClassName && [tagClassName isEqualToString: @"ico_sound"])
+                    {
+                        ttsURL = [[enEle attributes] valueForKey: @"onclick"];
+                        ttsURL = [ttsURL subStringAfter: @"('" before: @"')"];
+                        
+                        break;
+                    }
+                    
+                    NSString *enText = enEle.text;
+                    if (enText)
+                        [sampleEN appendString: enText];
+                }
+                
+                NSString *sampleCN = [[sampleElement peekAtSearchWithXPathQuery: @"//p[2]"].text trimSpaceAndReturn];
+                
+                if (enArray && [enArray count] > 0 && sampleCN)
+                {
+                    NSDictionary *sampleDict = @{kVSDictKey_explain_EN: [sampleEN trimSpaceAndReturn],
+                                                 //kVSDictKey_siteURL: ttsURL,
+                                                 kVSDictKey_explain_CN: sampleCN};
+                    
+                    [samplesArray addObject: sampleDict];
+                }
+            }
+            
+            NSDictionary *collinsExplain = @{kVSDictKey_category: category,
+                                             kVSDictKey_explain_CN: explainCN,
+                                             kVSDictKey_explain_EN: [explainEN trimSpaceAndReturn],
+                                             kVSDictKey_samples: samplesArray};
+            
+            [collinsArray addObject: collinsExplain];
+        }
+    }
+    
+    [dict setValue: collinsArray forKey: kVSDictKey_Collins];
+    
+    if (categoryUpdated)
+        [_collinsCategoryDict writeToFile: [self collinsCategoryFile: _currentSite] atomically: YES];
 }
 
 - (void) connectionDidFinishLoading: (NSURLConnection *)connection
@@ -258,12 +425,21 @@
             NSData *data = [NSJSONSerialization dataWithJSONObject: dict options: 0 error: &error];
             if (data)
             {
-                if (![data writeToFile: fileName options: NSDataWritingAtomic error: &error])
+                if (![dict writeToFile: fileName atomically: YES])
                 {
                     NSLog(@"Failed to writeToFile: %@", fileName);
-                    
-                    [self saveToFailList: [NSString stringWithFormat: @"Save to file fail [%ld]: %@", error.code, error.description]];
                 }
+                else
+                    [self deleteErrorDescription];
+                    
+                
+//                if (![data writeToFile: fileName options: NSDataWritingAtomic error: &error])
+//                {
+//                    NSLog(@"Failed to writeToFile: %@", fileName);
+//                    
+//                    [self saveToFailList: [NSString stringWithFormat: @"Save to file fail [%ld]: %@", error.code, error.description]];
+//                }
+//                else
             }
             else
             {

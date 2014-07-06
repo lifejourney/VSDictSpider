@@ -10,9 +10,6 @@
 
 @interface NSString (Trim)
 
-- (NSString*) trimAllSpace;
-- (NSString*) trimReturn;
-- (NSString*) trimTab;
-- (NSString*) trimAllControl;
+- (NSString*) trimSpaceAndReturn;
 
 @end

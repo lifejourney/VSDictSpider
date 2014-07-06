@@ -10,41 +10,18 @@
 
 @implementation NSString (Trim)
 
-- (NSString*) removeSubString: (NSString*)substring
+- (NSString*) trimSpaceAndReturn
 {
-    return [self stringByReplacingOccurrencesOfString: substring withString: @""];
-}
-
-- (NSString*) trimAllSpace
-{
-    NSString *ret = [self removeSubString: @" "];
-    ret = [ret removeSubString: @" "];
-    
-    return ret;
-}
-
-- (NSString*) trimReturn
-{
-    NSString *ret = [self removeSubString: @"\r"];
-    ret = [ret removeSubString: @"\n"];
-    
-    return ret;
-}
-
-- (NSString*) trimTab
-{
-    NSString *ret = [self removeSubString: @"\t"];
-    
-    return ret;
-}
-
-- (NSString*) trimAllControl
-{
-    NSString *ret = [self trimAllSpace];
-    ret = [ret trimTab];
-    ret = [ret trimReturn];
-    
-    return ret;
+    return [self stringByTrimmingCharactersInSet: [NSCharacterSet whitespaceAndNewlineCharacterSet]];
 }
 
 @end
+
+
+
+
+
+
+
+
+
