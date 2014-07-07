@@ -27,6 +27,14 @@
 		434D4BA719656537005EC6E1 /* VSMainViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 434D4BA519656537005EC6E1 /* VSMainViewController.xib */; };
 		435B222719668E0C0026EF85 /* NSString+SubString.m in Sources */ = {isa = PBXBuildFile; fileRef = 435B222619668E0C0026EF85 /* NSString+SubString.m */; };
 		435B222A196698660026EF85 /* NSString+Trim.m in Sources */ = {isa = PBXBuildFile; fileRef = 435B2229196698660026EF85 /* NSString+Trim.m */; };
+		43B8D14A196A91C6006FEE03 /* ky.txt in Resources */ = {isa = PBXBuildFile; fileRef = 43B8D149196A91C6006FEE03 /* ky.txt */; };
+		43B8D14C196A98BD006FEE03 /* gre.txt in Resources */ = {isa = PBXBuildFile; fileRef = 43B8D14B196A98BD006FEE03 /* gre.txt */; };
+		43B8D150196A9CCE006FEE03 /* cet4.txt in Resources */ = {isa = PBXBuildFile; fileRef = 43B8D14F196A9CCE006FEE03 /* cet4.txt */; };
+		43B8D152196AA35E006FEE03 /* cet6.txt in Resources */ = {isa = PBXBuildFile; fileRef = 43B8D151196AA35E006FEE03 /* cet6.txt */; };
+		43B8D157196AA459006FEE03 /* CET4_List.plist in Resources */ = {isa = PBXBuildFile; fileRef = 43B8D153196AA459006FEE03 /* CET4_List.plist */; };
+		43B8D158196AA459006FEE03 /* CET6_List.plist in Resources */ = {isa = PBXBuildFile; fileRef = 43B8D154196AA459006FEE03 /* CET6_List.plist */; };
+		43B8D159196AA459006FEE03 /* GRE_List.plist in Resources */ = {isa = PBXBuildFile; fileRef = 43B8D155196AA459006FEE03 /* GRE_List.plist */; };
+		43B8D15A196AA459006FEE03 /* KY_List.plist in Resources */ = {isa = PBXBuildFile; fileRef = 43B8D156196AA459006FEE03 /* KY_List.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -74,6 +82,14 @@
 		435B222619668E0C0026EF85 /* NSString+SubString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+SubString.m"; sourceTree = "<group>"; };
 		435B2228196698660026EF85 /* NSString+Trim.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Trim.h"; sourceTree = "<group>"; };
 		435B2229196698660026EF85 /* NSString+Trim.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+Trim.m"; sourceTree = "<group>"; };
+		43B8D149196A91C6006FEE03 /* ky.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ky.txt; sourceTree = "<group>"; };
+		43B8D14B196A98BD006FEE03 /* gre.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = gre.txt; sourceTree = "<group>"; };
+		43B8D14F196A9CCE006FEE03 /* cet4.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cet4.txt; sourceTree = "<group>"; };
+		43B8D151196AA35E006FEE03 /* cet6.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cet6.txt; sourceTree = "<group>"; };
+		43B8D153196AA459006FEE03 /* CET4_List.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = CET4_List.plist; sourceTree = "<group>"; };
+		43B8D154196AA459006FEE03 /* CET6_List.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = CET6_List.plist; sourceTree = "<group>"; };
+		43B8D155196AA459006FEE03 /* GRE_List.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = GRE_List.plist; sourceTree = "<group>"; };
+		43B8D156196AA459006FEE03 /* KY_List.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = KY_List.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -160,6 +176,14 @@
 				435B222619668E0C0026EF85 /* NSString+SubString.m */,
 				435B2228196698660026EF85 /* NSString+Trim.h */,
 				435B2229196698660026EF85 /* NSString+Trim.m */,
+				43B8D153196AA459006FEE03 /* CET4_List.plist */,
+				43B8D154196AA459006FEE03 /* CET6_List.plist */,
+				43B8D155196AA459006FEE03 /* GRE_List.plist */,
+				43B8D156196AA459006FEE03 /* KY_List.plist */,
+				43B8D14F196A9CCE006FEE03 /* cet4.txt */,
+				43B8D151196AA35E006FEE03 /* cet6.txt */,
+				43B8D14B196A98BD006FEE03 /* gre.txt */,
+				43B8D149196A91C6006FEE03 /* ky.txt */,
 			);
 			path = VSDictSpider;
 			sourceTree = "<group>";
@@ -271,10 +295,18 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				43B8D15A196AA459006FEE03 /* KY_List.plist in Resources */,
+				43B8D159196AA459006FEE03 /* GRE_List.plist in Resources */,
 				434D4BA719656537005EC6E1 /* VSMainViewController.xib in Resources */,
+				43B8D14A196A91C6006FEE03 /* ky.txt in Resources */,
 				434D4B5F19655D4A005EC6E1 /* InfoPlist.strings in Resources */,
+				43B8D14C196A98BD006FEE03 /* gre.txt in Resources */,
+				43B8D152196AA35E006FEE03 /* cet6.txt in Resources */,
+				43B8D150196A9CCE006FEE03 /* cet4.txt in Resources */,
+				43B8D158196AA459006FEE03 /* CET6_List.plist in Resources */,
 				434D4B6D19655D4A005EC6E1 /* Images.xcassets in Resources */,
 				434D4B6519655D4A005EC6E1 /* Credits.rtf in Resources */,
+				43B8D157196AA459006FEE03 /* CET4_List.plist in Resources */,
 				434D4B6B19655D4A005EC6E1 /* MainMenu.xib in Resources */,
 				434D4B8F19655E72005EC6E1 /* sample1.rtf in Resources */,
 			);

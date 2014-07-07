@@ -20,6 +20,7 @@
 @property (nonatomic, strong) IBOutlet NSTextField *wordTextField;
 
 - (IBAction) forIciba: (id)sender;
+- (IBAction) getWordList: (id)sender;
 
 @property (nonatomic, strong) NSString *currentSite;
 @property (nonatomic, strong) NSString *currentWord;
@@ -87,6 +88,71 @@
     _collinsCategoryDict = [[NSMutableDictionary alloc] initWithContentsOfFile: [self collinsCategoryFile: _currentSite]];
     if (!_collinsCategoryDict)
         _collinsCategoryDict = [[NSMutableDictionary alloc] init];
+}
+
+- (NSArray*) keyArrayFromTxt1: (NSString*)txt
+{
+    NSArray *lines = [txt componentsSeparatedByString: @"\n"];
+    
+    NSMutableArray *keyArray = [[NSMutableArray alloc] initWithCapacity: [lines count]/2];
+    for (NSUInteger i = 0; i < [lines count]; i += 2)
+    {
+        [keyArray addObject: [lines objectAtIndex: i]];
+    }
+    
+    return keyArray;
+}
+
+- (NSArray*) keyArrayFromTxt2: (NSString*)txt
+{
+    NSArray *lines = [txt componentsSeparatedByString: @"\n"];
+    
+    NSMutableArray *keyArray = [[NSMutableArray alloc] initWithCapacity: [lines count]/2];
+    for (NSUInteger i = 0; i < [lines count]; i++)
+    {
+        NSString *oneLine = [lines objectAtIndex: i];
+        NSArray *wordArray = [oneLine componentsSeparatedByString: @" "];
+        NSString *key = nil;
+        for (NSUInteger w = 0; w < [wordArray count]; w++)
+        {
+            key = [wordArray objectAtIndex: w];
+            
+            if (key && [key length] > 0)
+                break;
+        }
+        
+        if (key && [key length] > 0)
+            [keyArray addObject: key];
+        else
+            NSLog(@"Not key found in txt: %@", txt);
+    }
+    
+    return keyArray;
+}
+
+- (IBAction) txtFile: (NSString*)txtFile toKeyListFile: (NSString*)keyListFile selType: (NSInteger)selType
+{
+    NSString *filePath = [[NSBundle mainBundle] pathForResource: txtFile ofType: @"txt"];
+    NSString *txt = [NSString stringWithContentsOfFile: filePath encoding: NSUTF8StringEncoding error: nil];
+    
+    NSArray *keyArray;
+    if (selType == 1)
+        keyArray = [self keyArrayFromTxt1: txt];
+    else
+        keyArray = [self keyArrayFromTxt2: txt];
+    
+    NSString *desktopPath = [NSSearchPathForDirectoriesInDomains(NSDesktopDirectory, NSUserDomainMask, YES) lastObject];
+    NSString *keyFilePath = [NSString stringWithFormat: @"%@/VSDictSpider/VSDictSpider/%@.plist", desktopPath, keyListFile];
+    
+    [keyArray writeToFile: keyFilePath atomically: YES];
+}
+
+- (IBAction) getWordList: (id)sender
+{
+    [self txtFile: @"ky" toKeyListFile: @"KY_List" selType: 1];
+    [self txtFile: @"gre" toKeyListFile: @"GRE_List" selType: 1];
+    [self txtFile: @"cet4" toKeyListFile: @"CET4_List" selType: 2];
+    [self txtFile: @"cet6" toKeyListFile: @"CET6_List" selType: 2];
 }
 
 - (NSURLRequest*) connection: (NSURLConnection *)connection
@@ -207,7 +273,6 @@
 {
     NSArray *eleArray;
     TFHppleElement *element;
-    TFHppleElement *node;
     NSString *text;
     BOOL categoryUpdated = NO;
     
