@@ -35,6 +35,7 @@
 		43B8D158196AA459006FEE03 /* CET6_List.plist in Resources */ = {isa = PBXBuildFile; fileRef = 43B8D154196AA459006FEE03 /* CET6_List.plist */; };
 		43B8D159196AA459006FEE03 /* GRE_List.plist in Resources */ = {isa = PBXBuildFile; fileRef = 43B8D155196AA459006FEE03 /* GRE_List.plist */; };
 		43B8D15A196AA459006FEE03 /* KY_List.plist in Resources */ = {isa = PBXBuildFile; fileRef = 43B8D156196AA459006FEE03 /* KY_List.plist */; };
+		DCBFE37F196ABAB10054BDE2 /* PrimerWord.plist in Resources */ = {isa = PBXBuildFile; fileRef = DCBFE37E196ABAB10054BDE2 /* PrimerWord.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -90,6 +91,7 @@
 		43B8D154196AA459006FEE03 /* CET6_List.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = CET6_List.plist; sourceTree = "<group>"; };
 		43B8D155196AA459006FEE03 /* GRE_List.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = GRE_List.plist; sourceTree = "<group>"; };
 		43B8D156196AA459006FEE03 /* KY_List.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = KY_List.plist; sourceTree = "<group>"; };
+		DCBFE37E196ABAB10054BDE2 /* PrimerWord.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = PrimerWord.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -184,6 +186,7 @@
 				43B8D151196AA35E006FEE03 /* cet6.txt */,
 				43B8D14B196A98BD006FEE03 /* gre.txt */,
 				43B8D149196A91C6006FEE03 /* ky.txt */,
+				DCBFE37E196ABAB10054BDE2 /* PrimerWord.plist */,
 			);
 			path = VSDictSpider;
 			sourceTree = "<group>";
@@ -307,6 +310,7 @@
 				434D4B6D19655D4A005EC6E1 /* Images.xcassets in Resources */,
 				434D4B6519655D4A005EC6E1 /* Credits.rtf in Resources */,
 				43B8D157196AA459006FEE03 /* CET4_List.plist in Resources */,
+				DCBFE37F196ABAB10054BDE2 /* PrimerWord.plist in Resources */,
 				434D4B6B19655D4A005EC6E1 /* MainMenu.xib in Resources */,
 				434D4B8F19655E72005EC6E1 /* sample1.rtf in Resources */,
 			);
