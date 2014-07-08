@@ -35,6 +35,9 @@
 		43B8D158196AA459006FEE03 /* CET6_List.plist in Resources */ = {isa = PBXBuildFile; fileRef = 43B8D154196AA459006FEE03 /* CET6_List.plist */; };
 		43B8D159196AA459006FEE03 /* GRE_List.plist in Resources */ = {isa = PBXBuildFile; fileRef = 43B8D155196AA459006FEE03 /* GRE_List.plist */; };
 		43B8D15A196AA459006FEE03 /* KY_List.plist in Resources */ = {isa = PBXBuildFile; fileRef = 43B8D156196AA459006FEE03 /* KY_List.plist */; };
+		43CC89A2196BD9A600BCA8D3 /* gz.txt in Resources */ = {isa = PBXBuildFile; fileRef = 43CC89A1196BD9A600BCA8D3 /* gz.txt */; };
+		43CC89A4196BEBE100BCA8D3 /* cz.txt in Resources */ = {isa = PBXBuildFile; fileRef = 43CC89A3196BEBE100BCA8D3 /* cz.txt */; };
+		43CC89A6196BEC0800BCA8D3 /* xx.txt in Resources */ = {isa = PBXBuildFile; fileRef = 43CC89A5196BEC0800BCA8D3 /* xx.txt */; };
 		DCBFE37F196ABAB10054BDE2 /* PrimerWord.plist in Resources */ = {isa = PBXBuildFile; fileRef = DCBFE37E196ABAB10054BDE2 /* PrimerWord.plist */; };
 /* End PBXBuildFile section */
 
@@ -91,6 +94,9 @@
 		43B8D154196AA459006FEE03 /* CET6_List.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = CET6_List.plist; sourceTree = "<group>"; };
 		43B8D155196AA459006FEE03 /* GRE_List.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = GRE_List.plist; sourceTree = "<group>"; };
 		43B8D156196AA459006FEE03 /* KY_List.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = KY_List.plist; sourceTree = "<group>"; };
+		43CC89A1196BD9A600BCA8D3 /* gz.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = gz.txt; sourceTree = "<group>"; };
+		43CC89A3196BEBE100BCA8D3 /* cz.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cz.txt; sourceTree = "<group>"; };
+		43CC89A5196BEC0800BCA8D3 /* xx.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = xx.txt; sourceTree = "<group>"; };
 		DCBFE37E196ABAB10054BDE2 /* PrimerWord.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = PrimerWord.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -187,6 +193,9 @@
 				43B8D14B196A98BD006FEE03 /* gre.txt */,
 				43B8D149196A91C6006FEE03 /* ky.txt */,
 				DCBFE37E196ABAB10054BDE2 /* PrimerWord.plist */,
+				43CC89A1196BD9A600BCA8D3 /* gz.txt */,
+				43CC89A3196BEBE100BCA8D3 /* cz.txt */,
+				43CC89A5196BEC0800BCA8D3 /* xx.txt */,
 			);
 			path = VSDictSpider;
 			sourceTree = "<group>";
@@ -303,11 +312,14 @@
 				434D4BA719656537005EC6E1 /* VSMainViewController.xib in Resources */,
 				43B8D14A196A91C6006FEE03 /* ky.txt in Resources */,
 				434D4B5F19655D4A005EC6E1 /* InfoPlist.strings in Resources */,
+				43CC89A4196BEBE100BCA8D3 /* cz.txt in Resources */,
+				43CC89A2196BD9A600BCA8D3 /* gz.txt in Resources */,
 				43B8D14C196A98BD006FEE03 /* gre.txt in Resources */,
 				43B8D152196AA35E006FEE03 /* cet6.txt in Resources */,
 				43B8D150196A9CCE006FEE03 /* cet4.txt in Resources */,
 				43B8D158196AA459006FEE03 /* CET6_List.plist in Resources */,
 				434D4B6D19655D4A005EC6E1 /* Images.xcassets in Resources */,
+				43CC89A6196BEC0800BCA8D3 /* xx.txt in Resources */,
 				434D4B6519655D4A005EC6E1 /* Credits.rtf in Resources */,
 				43B8D157196AA459006FEE03 /* CET4_List.plist in Resources */,
 				DCBFE37F196ABAB10054BDE2 /* PrimerWord.plist in Resources */,
